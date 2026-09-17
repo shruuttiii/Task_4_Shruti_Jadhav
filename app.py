@@ -5,9 +5,9 @@ from PIL import Image
 from collections import Counter
 
 
-# --------------------------------------------------
-# PAGE CONFIGURATION
-# --------------------------------------------------
+# =========================================================
+# PAGE CONFIG
+# =========================================================
 
 st.set_page_config(
     page_title="MobileNet-SSD Object Detection",
@@ -16,9 +16,9 @@ st.set_page_config(
 )
 
 
-# --------------------------------------------------
+# =========================================================
 # CLASS LABELS
-# --------------------------------------------------
+# =========================================================
 
 CLASSES = [
     "background",
@@ -45,10 +45,10 @@ CLASSES = [
 ]
 
 
-# --------------------------------------------------
-# CLASS COLORS
-# OpenCV uses BGR format
-# --------------------------------------------------
+# =========================================================
+# DIFFERENT COLORS FOR DIFFERENT CLASSES
+# OpenCV uses BGR
+# =========================================================
 
 CLASS_COLORS = {
     "person": (255, 0, 0),
@@ -60,15 +60,25 @@ CLASS_COLORS = {
     "bus": (128, 0, 128),
     "motorbike": (0, 165, 255),
     "cat": (128, 128, 0),
-    "bird": (255, 128, 0)
+    "bird": (255, 128, 0),
+    "boat": (255, 165, 0),
+    "horse": (0, 128, 255),
+    "cow": (128, 255, 0),
+    "train": (255, 0, 128),
+    "sofa": (128, 128, 255),
+    "tvmonitor": (0, 255, 128),
+    "pottedplant": (128, 255, 255),
+    "diningtable": (255, 128, 128),
+    "sheep": (255, 255, 128),
+    "aeroplane": (128, 0, 255)
 }
 
 DEFAULT_COLOR = (255, 255, 255)
 
 
-# --------------------------------------------------
-# LOAD MODEL
-# --------------------------------------------------
+# =========================================================
+# LOAD MOBILE NET-SSD MODEL
+# =========================================================
 
 @st.cache_resource
 def load_model():
@@ -76,10 +86,33 @@ def load_model():
     prototxt_path = "deploy.prototxt"
     model_path = "mobilenet_iter_73000.caffemodel"
 
-    net = cv2.dnn.readNetFromCaffe(
-        prototxt_path,
-        model_path
-    )
+    # Check model files
+    import os
+
+    if not os.path.exists(prototxt_path):
+        st.error("deploy.prototxt file not found.")
+        st.stop()
+
+    if not os.path.exists(model_path):
+        st.error("mobilenet_iter_73000.caffemodel file not found.")
+        st.stop()
+
+    try:
+
+        # Primary method
+        net = cv2.dnn.readNetFromCaffe(
+            prototxt_path,
+            model_path
+        )
+
+    except AttributeError:
+
+        # Fallback method
+        net = cv2.dnn.readNet(
+            model_path,
+            prototxt_path,
+            "Caffe"
+        )
 
     return net
 
@@ -87,23 +120,25 @@ def load_model():
 net = load_model()
 
 
-# --------------------------------------------------
+# =========================================================
 # TITLE
-# --------------------------------------------------
+# =========================================================
 
 st.title("🤖 MobileNet-SSD Object Detection")
 
 st.write(
-    "Upload an image to detect objects using a pretrained "
-    "MobileNet-SSD model."
+    "Upload an image and detect objects using a "
+    "pretrained MobileNet-SSD model."
 )
 
+st.divider()
 
-# --------------------------------------------------
-# SIDEBAR
-# --------------------------------------------------
 
-st.sidebar.header("Detection Settings")
+# =========================================================
+# SIDEBAR SETTINGS
+# =========================================================
+
+st.sidebar.title("⚙️ Detection Settings")
 
 confidence_threshold = st.sidebar.slider(
     "Confidence Threshold",
@@ -114,13 +149,19 @@ confidence_threshold = st.sidebar.slider(
 )
 
 st.sidebar.write(
-    f"Current threshold: **{confidence_threshold * 100:.0f}%**"
+    f"Selected threshold: "
+    f"**{confidence_threshold * 100:.0f}%**"
+)
+
+st.sidebar.info(
+    "Objects with confidence below the selected "
+    "threshold will not be displayed."
 )
 
 
-# --------------------------------------------------
+# =========================================================
 # IMAGE UPLOAD
-# --------------------------------------------------
+# =========================================================
 
 uploaded_file = st.file_uploader(
     "📤 Upload an image",
@@ -128,25 +169,32 @@ uploaded_file = st.file_uploader(
 )
 
 
-# --------------------------------------------------
-# OBJECT DETECTION
-# --------------------------------------------------
+# =========================================================
+# MAIN DETECTION
+# =========================================================
 
 if uploaded_file is not None:
 
-    # Read uploaded image
+    # -----------------------------------------------------
+    # READ IMAGE
+    # -----------------------------------------------------
+
     pil_image = Image.open(uploaded_file).convert("RGB")
 
-    image = np.array(pil_image)
+    image_rgb = np.array(pil_image)
 
-    # Convert RGB to BGR for OpenCV
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    # Convert RGB → BGR for OpenCV
+    image = cv2.cvtColor(
+        image_rgb,
+        cv2.COLOR_RGB2BGR
+    )
 
     h, w = image.shape[:2]
 
-    # --------------------------------------------------
+
+    # -----------------------------------------------------
     # CREATE BLOB
-    # --------------------------------------------------
+    # -----------------------------------------------------
 
     blob = cv2.dnn.blobFromImage(
         cv2.resize(image, (300, 300)),
@@ -155,23 +203,29 @@ if uploaded_file is not None:
         127.5
     )
 
-    # --------------------------------------------------
-    # RUN DETECTION
-    # --------------------------------------------------
+
+    # -----------------------------------------------------
+    # RUN MODEL
+    # -----------------------------------------------------
 
     net.setInput(blob)
 
     detections = net.forward()
 
-    # Copy original image
+
+    # -----------------------------------------------------
+    # CREATE OUTPUT IMAGE
+    # -----------------------------------------------------
+
     output_image = image.copy()
 
     detected_objects = []
     confidence_scores = []
 
-    # --------------------------------------------------
+
+    # -----------------------------------------------------
     # PROCESS DETECTIONS
-    # --------------------------------------------------
+    # -----------------------------------------------------
 
     for i in range(detections.shape[2]):
 
@@ -179,15 +233,21 @@ if uploaded_file is not None:
 
         if confidence >= confidence_threshold:
 
-            class_id = int(detections[0, 0, i, 1])
+            class_id = int(
+                detections[0, 0, i, 1]
+            )
 
             label = CLASSES[class_id]
 
-            confidence_scores.append(confidence)
-
             detected_objects.append(label)
 
-            # Calculate bounding box
+            confidence_scores.append(confidence)
+
+
+            # -------------------------------------------------
+            # BOUNDING BOX
+            # -------------------------------------------------
+
             box = (
                 detections[0, 0, i, 3:7]
                 * np.array([w, h, w, h])
@@ -195,58 +255,107 @@ if uploaded_file is not None:
 
             startX, startY, endX, endY = box.astype("int")
 
-            # Keep coordinates inside image
+
+            # Keep coordinates within image
             startX = max(0, startX)
             startY = max(0, startY)
+
             endX = min(w - 1, endX)
             endY = min(h - 1, endY)
 
-            # Get class-specific color
+
+            # -------------------------------------------------
+            # CLASS COLOR
+            # -------------------------------------------------
+
             color = CLASS_COLORS.get(
                 label,
                 DEFAULT_COLOR
             )
 
-            # Draw bounding box
+
+            # -------------------------------------------------
+            # DRAW BOUNDING BOX
+            # -------------------------------------------------
+
             cv2.rectangle(
                 output_image,
                 (startX, startY),
                 (endX, endY),
                 color,
-                2
+                3
             )
 
-            # Create label
-            text = f"{label}: {confidence * 100:.1f}%"
 
+            # -------------------------------------------------
+            # LABEL
+            # -------------------------------------------------
+
+            text = (
+                f"{label}: "
+                f"{confidence * 100:.1f}%"
+            )
+
+            # Text background
+            (text_width, text_height), baseline = (
+                cv2.getTextSize(
+                    text,
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    2
+                )
+            )
+
+            text_y = max(startY - 10, text_height + 10)
+
+            cv2.rectangle(
+                output_image,
+                (
+                    startX,
+                    text_y - text_height - baseline
+                ),
+                (
+                    startX + text_width,
+                    text_y + baseline
+                ),
+                color,
+                -1
+            )
+
+
+            # White text
             cv2.putText(
                 output_image,
                 text,
-                (startX, max(startY - 10, 20)),
+                (startX, text_y),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
-                color,
+                (255, 255, 255),
                 2
             )
 
-    # Convert output back to RGB
+
+    # -----------------------------------------------------
+    # CONVERT OUTPUT BGR → RGB
+    # -----------------------------------------------------
+
     output_rgb = cv2.cvtColor(
         output_image,
         cv2.COLOR_BGR2RGB
     )
 
 
-    # --------------------------------------------------
+    # =====================================================
     # DISPLAY IMAGES
-    # --------------------------------------------------
+    # =====================================================
 
-    st.subheader("Detection Result")
+    st.subheader("🖼️ Detection Result")
 
     col1, col2 = st.columns(2)
 
     with col1:
 
-        st.write("### Original Image")
+        st.markdown("### Original Image")
 
         st.image(
             pil_image,
@@ -255,7 +364,7 @@ if uploaded_file is not None:
 
     with col2:
 
-        st.write("### Detected Objects")
+        st.markdown("### Detected Objects")
 
         st.image(
             output_rgb,
@@ -263,71 +372,116 @@ if uploaded_file is not None:
         )
 
 
-    # --------------------------------------------------
+    # =====================================================
     # RESULTS
-    # --------------------------------------------------
+    # =====================================================
+
+    st.divider()
 
     st.subheader("📊 Detection Summary")
 
+
     if detected_objects:
 
-        object_counts = Counter(detected_objects)
+        object_counts = Counter(
+            detected_objects
+        )
 
-        col1, col2, col3 = st.columns(3)
+
+        # -------------------------------------------------
+        # METRICS
+        # -------------------------------------------------
+
+        col1, col2, col3, col4 = st.columns(4)
 
         with col1:
+
             st.metric(
                 "Total Objects",
                 len(detected_objects)
             )
 
         with col2:
+
+            st.metric(
+                "Object Classes",
+                len(object_counts)
+            )
+
+        with col3:
+
             st.metric(
                 "Average Confidence",
                 f"{np.mean(confidence_scores) * 100:.2f}%"
             )
 
-        with col3:
+        with col4:
+
             st.metric(
                 "Highest Confidence",
                 f"{max(confidence_scores) * 100:.2f}%"
             )
 
 
-        st.write("### Detected Classes")
+        # -------------------------------------------------
+        # DETECTED CLASSES
+        # -------------------------------------------------
+
+        st.markdown("### 🔎 Detected Classes")
 
         for label, count in object_counts.items():
 
             st.write(
-                f"**{label.capitalize()}**: {count}"
+                f"**{label.capitalize()}** — {count}"
             )
 
 
-        # --------------------------------------------------
+        # -------------------------------------------------
         # CONFIDENCE DETAILS
-        # --------------------------------------------------
+        # -------------------------------------------------
 
-        st.write("### Confidence Details")
+        st.markdown("### 📈 Confidence Details")
 
-        st.write(
-            f"Lowest confidence: "
-            f"**{min(confidence_scores) * 100:.2f}%**"
+        confidence_col1, confidence_col2, confidence_col3 = (
+            st.columns(3)
         )
 
-        st.write(
-            f"Highest confidence: "
-            f"**{max(confidence_scores) * 100:.2f}%**"
-        )
+        with confidence_col1:
 
-        st.write(
-            f"Average confidence: "
-            f"**{np.mean(confidence_scores) * 100:.2f}%**"
-        )
+            st.write(
+                "Lowest Confidence"
+            )
+
+            st.write(
+                f"### {min(confidence_scores) * 100:.2f}%"
+            )
+
+        with confidence_col2:
+
+            st.write(
+                "Average Confidence"
+            )
+
+            st.write(
+                f"### {np.mean(confidence_scores) * 100:.2f}%"
+            )
+
+        with confidence_col3:
+
+            st.write(
+                "Highest Confidence"
+            )
+
+            st.write(
+                f"### {max(confidence_scores) * 100:.2f}%"
+            )
 
 
-        # --------------------------------------------------
+        # -------------------------------------------------
         # DOWNLOAD RESULT
-        # --------------------------------------------------
+        # -------------------------------------------------
+
+        st.divider()
 
         result_bytes = cv2.imencode(
             ".jpg",
@@ -341,9 +495,10 @@ if uploaded_file is not None:
             mime="image/jpeg"
         )
 
+
     else:
 
         st.warning(
-            "No objects were detected above the selected "
-            "confidence threshold."
+            "No objects were detected above the "
+            "selected confidence threshold."
         )
