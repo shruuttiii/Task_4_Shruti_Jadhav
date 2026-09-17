@@ -6,7 +6,7 @@ from collections import Counter
 
 
 # =========================================================
-# PAGE CONFIG
+# PAGE CONFIGURATION
 # =========================================================
 
 st.set_page_config(
@@ -17,7 +17,345 @@ st.set_page_config(
 
 
 # =========================================================
-# CLASS LABELS
+# CUSTOM COLOR THEME
+# =========================================================
+
+st.markdown("""
+<style>
+
+    /* =========================
+       COLOR PALETTE
+       Deep Pine   #0F2E23
+       Olive Moss  #798F53
+       Warm Ivory  #F4F1DE
+       Dusty Rose  #C88582
+       Deep Teal   #1B5B65
+       ========================= */
+
+
+    /* Main application background */
+    .stApp {
+        background-color: #F4F1DE;
+        color: #0F2E23;
+    }
+
+
+    /* Main content */
+    .main {
+        background-color: #F4F1DE;
+    }
+
+
+    /* =========================
+       SIDEBAR
+       ========================= */
+
+    section[data-testid="stSidebar"] {
+        background-color: #0F2E23;
+    }
+
+    section[data-testid="stSidebar"] * {
+        color: #F4F1DE !important;
+    }
+
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3 {
+        color: #F4F1DE !important;
+    }
+
+
+    /* =========================
+       HEADINGS
+       ========================= */
+
+    h1 {
+        color: #0F2E23 !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px;
+    }
+
+    h2 {
+        color: #1B5B65 !important;
+        font-weight: 750 !important;
+    }
+
+    h3 {
+        color: #0F2E23 !important;
+        font-weight: 700 !important;
+    }
+
+
+    /* Normal text */
+    p {
+        color: #0F2E23;
+    }
+
+
+    /* =========================
+       TOP HEADER
+       ========================= */
+
+    .project-header {
+        background: linear-gradient(
+            135deg,
+            rgba(15, 46, 35, 0.08),
+            rgba(27, 91, 101, 0.08)
+        );
+
+        border: 1px solid rgba(121, 143, 83, 0.35);
+        border-radius: 20px;
+
+        padding: 24px 28px;
+        margin-bottom: 25px;
+    }
+
+    .project-title {
+        color: #0F2E23;
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    .project-subtitle {
+        color: #1B5B65;
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+
+
+    /* =========================
+       METRIC CARDS
+       ========================= */
+
+    div[data-testid="stMetric"] {
+        background-color: rgba(121, 143, 83, 0.13);
+
+        border: 1px solid rgba(121, 143, 83, 0.45);
+
+        border-radius: 18px;
+
+        padding: 20px;
+
+        min-height: 120px;
+
+        box-shadow: 0 4px 12px rgba(15, 46, 35, 0.05);
+    }
+
+
+    div[data-testid="stMetricLabel"] {
+        color: #0F2E23 !important;
+        font-weight: 600 !important;
+    }
+
+
+    div[data-testid="stMetricValue"] {
+        color: #1B5B65 !important;
+        font-weight: 800 !important;
+    }
+
+
+    /* =========================
+       SECTION CONTAINERS
+       ========================= */
+
+    .section-card {
+        background-color: rgba(255, 255, 255, 0.45);
+
+        border: 1px solid rgba(121, 143, 83, 0.45);
+
+        border-radius: 18px;
+
+        padding: 20px 24px;
+
+        margin-top: 20px;
+
+        box-shadow: 0 4px 14px rgba(15, 46, 35, 0.04);
+    }
+
+
+    .section-title {
+        color: #1B5B65;
+
+        font-size: 22px;
+
+        font-weight: 750;
+
+        margin-bottom: 15px;
+    }
+
+
+    /* =========================
+       DETECTED CLASS CARDS
+       ========================= */
+
+    .detected-class {
+        background-color: rgba(27, 91, 101, 0.10);
+
+        border-left: 5px solid #1B5B65;
+
+        border-radius: 12px;
+
+        padding: 13px 18px;
+
+        margin: 9px 0;
+
+        color: #0F2E23;
+
+        font-size: 16px;
+
+        font-weight: 650;
+    }
+
+
+    /* =========================
+       CONFIDENCE CARDS
+       ========================= */
+
+    .confidence-card {
+        background-color: rgba(121, 143, 83, 0.12);
+
+        border: 1px solid rgba(121, 143, 83, 0.35);
+
+        border-radius: 14px;
+
+        padding: 18px;
+
+        text-align: center;
+
+        min-height: 100px;
+    }
+
+
+    .confidence-card.rose {
+        background-color: rgba(200, 133, 130, 0.16);
+
+        border-color: rgba(200, 133, 130, 0.45);
+    }
+
+
+    .confidence-label {
+        color: #0F2E23;
+
+        font-size: 14px;
+
+        font-weight: 600;
+    }
+
+
+    .confidence-value {
+        color: #1B5B65;
+
+        font-size: 26px;
+
+        font-weight: 800;
+
+        margin-top: 5px;
+    }
+
+
+    .rose-value {
+        color: #C88582;
+    }
+
+
+    /* =========================
+       BUTTONS
+       ========================= */
+
+    .stDownloadButton > button {
+        background-color: #1B5B65 !important;
+
+        color: #F4F1DE !important;
+
+        border: none !important;
+
+        border-radius: 12px !important;
+
+        padding: 11px 24px !important;
+
+        font-weight: 700 !important;
+
+        transition: 0.2s ease;
+    }
+
+
+    .stDownloadButton > button:hover {
+        background-color: #0F2E23 !important;
+
+        color: #F4F1DE !important;
+    }
+
+
+    /* =========================
+       INFO / WARNING BOXES
+       ========================= */
+
+    div[data-testid="stAlert"] {
+        border-radius: 13px;
+    }
+
+
+    /* =========================
+       SLIDER
+       ========================= */
+
+    div[data-baseweb="slider"] > div > div {
+        background-color: #798F53 !important;
+    }
+
+
+    /* =========================
+       FILE UPLOADER
+       ========================= */
+
+    section[data-testid="stFileUploaderDropzone"] {
+        background-color: rgba(121, 143, 83, 0.08);
+
+        border: 2px dashed #798F53;
+
+        border-radius: 15px;
+    }
+
+
+    /* =========================
+       IMAGE DISPLAY
+       ========================= */
+
+    img {
+        border-radius: 14px;
+    }
+
+
+    /* =========================
+       DIVIDERS
+       ========================= */
+
+    hr {
+        border-color: rgba(121, 143, 83, 0.35);
+    }
+
+
+    /* =========================
+       FOOTER
+       ========================= */
+
+    .footer {
+        text-align: center;
+
+        color: #798F53;
+
+        font-size: 13px;
+
+        padding: 25px 0 10px 0;
+    }
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# =========================================================
+# MOBILE-NET SSD CLASSES
 # =========================================================
 
 CLASSES = [
@@ -46,8 +384,7 @@ CLASSES = [
 
 
 # =========================================================
-# DIFFERENT COLORS FOR DIFFERENT CLASSES
-# OpenCV uses BGR
+# INDIVIDUAL CLASS COLORS
 # =========================================================
 
 CLASS_COLORS = {
@@ -77,42 +414,20 @@ DEFAULT_COLOR = (255, 255, 255)
 
 
 # =========================================================
-# LOAD MOBILE NET-SSD MODEL
+# LOAD MOBILE-NET SSD MODEL
 # =========================================================
 
 @st.cache_resource
 def load_model():
 
     prototxt_path = "deploy.prototxt"
+
     model_path = "mobilenet_iter_73000.caffemodel"
 
-    # Check model files
-    import os
-
-    if not os.path.exists(prototxt_path):
-        st.error("deploy.prototxt file not found.")
-        st.stop()
-
-    if not os.path.exists(model_path):
-        st.error("mobilenet_iter_73000.caffemodel file not found.")
-        st.stop()
-
-    try:
-
-        # Primary method
-        net = cv2.dnn.readNetFromCaffe(
-            prototxt_path,
-            model_path
-        )
-
-    except AttributeError:
-
-        # Fallback method
-        net = cv2.dnn.readNet(
-            model_path,
-            prototxt_path,
-            "Caffe"
-        )
+    net = cv2.dnn.readNetFromCaffe(
+        prototxt_path,
+        model_path
+    )
 
     return net
 
@@ -121,24 +436,28 @@ net = load_model()
 
 
 # =========================================================
-# TITLE
+# SIDEBAR
 # =========================================================
 
-st.title("🤖 MobileNet-SSD Object Detection")
-
-st.write(
-    "Upload an image and detect objects using a "
-    "pretrained MobileNet-SSD model."
+st.sidebar.markdown(
+    """
+    <div style="font-size:28px; font-weight:800;">
+        🤖 Detection Settings
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
-st.divider()
+st.sidebar.markdown(
+    """
+    <p style="font-size:14px;">
+        Adjust the confidence threshold to control
+        which detections are displayed.
+    </p>
+    """,
+    unsafe_allow_html=True
+)
 
-
-# =========================================================
-# SIDEBAR SETTINGS
-# =========================================================
-
-st.sidebar.title("⚙️ Detection Settings")
 
 confidence_threshold = st.sidebar.slider(
     "Confidence Threshold",
@@ -148,14 +467,50 @@ confidence_threshold = st.sidebar.slider(
     step=0.05
 )
 
-st.sidebar.write(
-    f"Selected threshold: "
-    f"**{confidence_threshold * 100:.0f}%**"
+
+st.sidebar.markdown(
+    f"""
+    <div style="
+        background-color:#798F53;
+        padding:10px;
+        border-radius:10px;
+        text-align:center;
+        margin-top:10px;
+    ">
+        <b>Selected threshold:
+        {confidence_threshold * 100:.0f}%</b>
+    </div>
+    """,
+    unsafe_allow_html=True
 )
+
 
 st.sidebar.info(
     "Objects with confidence below the selected "
     "threshold will not be displayed."
+)
+
+
+# =========================================================
+# MAIN HEADER
+# =========================================================
+
+st.markdown(
+    """
+    <div class="project-header">
+
+        <div class="project-title">
+            🤖 MobileNet-SSD Object Detection
+        </div>
+
+        <div class="project-subtitle">
+            Upload an image and detect objects using a
+            pretrained MobileNet-SSD model.
+        </div>
+
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
 
@@ -170,20 +525,23 @@ uploaded_file = st.file_uploader(
 
 
 # =========================================================
-# MAIN DETECTION
+# OBJECT DETECTION
 # =========================================================
 
 if uploaded_file is not None:
 
     # -----------------------------------------------------
-    # READ IMAGE
+    # Read image
     # -----------------------------------------------------
 
-    pil_image = Image.open(uploaded_file).convert("RGB")
+    pil_image = Image.open(
+        uploaded_file
+    ).convert("RGB")
 
-    image_rgb = np.array(pil_image)
+    image_rgb = np.array(
+        pil_image
+    )
 
-    # Convert RGB → BGR for OpenCV
     image = cv2.cvtColor(
         image_rgb,
         cv2.COLOR_RGB2BGR
@@ -193,7 +551,7 @@ if uploaded_file is not None:
 
 
     # -----------------------------------------------------
-    # CREATE BLOB
+    # Create blob
     # -----------------------------------------------------
 
     blob = cv2.dnn.blobFromImage(
@@ -205,7 +563,7 @@ if uploaded_file is not None:
 
 
     # -----------------------------------------------------
-    # RUN MODEL
+    # Run model
     # -----------------------------------------------------
 
     net.setInput(blob)
@@ -214,22 +572,28 @@ if uploaded_file is not None:
 
 
     # -----------------------------------------------------
-    # CREATE OUTPUT IMAGE
+    # Prepare output
     # -----------------------------------------------------
 
     output_image = image.copy()
 
     detected_objects = []
+
     confidence_scores = []
 
 
-    # -----------------------------------------------------
+    # =====================================================
     # PROCESS DETECTIONS
-    # -----------------------------------------------------
+    # =====================================================
 
     for i in range(detections.shape[2]):
 
         confidence = detections[0, 0, i, 2]
+
+
+        # -------------------------------------------------
+        # Confidence filtering
+        # -------------------------------------------------
 
         if confidence >= confidence_threshold:
 
@@ -239,13 +603,18 @@ if uploaded_file is not None:
 
             label = CLASSES[class_id]
 
-            detected_objects.append(label)
 
-            confidence_scores.append(confidence)
+            detected_objects.append(
+                label
+            )
+
+            confidence_scores.append(
+                confidence
+            )
 
 
             # -------------------------------------------------
-            # BOUNDING BOX
+            # Bounding box
             # -------------------------------------------------
 
             box = (
@@ -253,19 +622,36 @@ if uploaded_file is not None:
                 * np.array([w, h, w, h])
             )
 
-            startX, startY, endX, endY = box.astype("int")
+            startX, startY, endX, endY = box.astype(
+                "int"
+            )
 
 
-            # Keep coordinates within image
-            startX = max(0, startX)
-            startY = max(0, startY)
+            # Keep coordinates inside image
 
-            endX = min(w - 1, endX)
-            endY = min(h - 1, endY)
+            startX = max(
+                0,
+                startX
+            )
+
+            startY = max(
+                0,
+                startY
+            )
+
+            endX = min(
+                w - 1,
+                endX
+            )
+
+            endY = min(
+                h - 1,
+                endY
+            )
 
 
             # -------------------------------------------------
-            # CLASS COLOR
+            # Class-specific color
             # -------------------------------------------------
 
             color = CLASS_COLORS.get(
@@ -275,7 +661,7 @@ if uploaded_file is not None:
 
 
             # -------------------------------------------------
-            # DRAW BOUNDING BOX
+            # Draw bounding box
             # -------------------------------------------------
 
             cv2.rectangle(
@@ -288,7 +674,7 @@ if uploaded_file is not None:
 
 
             # -------------------------------------------------
-            # LABEL
+            # Label text
             # -------------------------------------------------
 
             text = (
@@ -296,17 +682,25 @@ if uploaded_file is not None:
                 f"{confidence * 100:.1f}%"
             )
 
-            # Text background
-            (text_width, text_height), baseline = (
-                cv2.getTextSize(
-                    text,
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.6,
-                    2
-                )
+
+            (
+                text_width,
+                text_height
+            ), baseline = cv2.getTextSize(
+                text,
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                2
             )
 
-            text_y = max(startY - 10, text_height + 10)
+
+            text_y = max(
+                startY - 10,
+                text_height + 10
+            )
+
+
+            # Label background
 
             cv2.rectangle(
                 output_image,
@@ -323,11 +717,15 @@ if uploaded_file is not None:
             )
 
 
-            # White text
+            # Label text
+
             cv2.putText(
                 output_image,
                 text,
-                (startX, text_y),
+                (
+                    startX,
+                    text_y
+                ),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
                 (255, 255, 255),
@@ -335,9 +733,9 @@ if uploaded_file is not None:
             )
 
 
-    # -----------------------------------------------------
-    # CONVERT OUTPUT BGR → RGB
-    # -----------------------------------------------------
+    # =====================================================
+    # CONVERT RESULT TO RGB
+    # =====================================================
 
     output_rgb = cv2.cvtColor(
         output_image,
@@ -346,25 +744,38 @@ if uploaded_file is not None:
 
 
     # =====================================================
-    # DISPLAY IMAGES
+    # DETECTION RESULT
     # =====================================================
 
-    st.subheader("🖼️ Detection Result")
+    st.markdown(
+        '<div class="section-title">🖼️ Detection Result</div>',
+        unsafe_allow_html=True
+    )
 
-    col1, col2 = st.columns(2)
+
+    col1, col2 = st.columns(
+        2,
+        gap="large"
+    )
+
 
     with col1:
 
-        st.markdown("### Original Image")
+        st.markdown(
+            "### Original Image"
+        )
 
         st.image(
             pil_image,
             use_container_width=True
         )
 
+
     with col2:
 
-        st.markdown("### Detected Objects")
+        st.markdown(
+            "### Detected Objects"
+        )
 
         st.image(
             output_rgb,
@@ -372,13 +783,17 @@ if uploaded_file is not None:
         )
 
 
-    # =====================================================
-    # RESULTS
-    # =====================================================
-
     st.divider()
 
-    st.subheader("📊 Detection Summary")
+
+    # =====================================================
+    # DETECTION SUMMARY
+    # =====================================================
+
+    st.markdown(
+        '<div class="section-title">📊 Detection Summary</div>',
+        unsafe_allow_html=True
+    )
 
 
     if detected_objects:
@@ -389,10 +804,13 @@ if uploaded_file is not None:
 
 
         # -------------------------------------------------
-        # METRICS
+        # TOP METRICS
         # -------------------------------------------------
 
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4 = st.columns(
+            4
+        )
+
 
         with col1:
 
@@ -401,6 +819,7 @@ if uploaded_file is not None:
                 len(detected_objects)
             )
 
+
         with col2:
 
             st.metric(
@@ -408,12 +827,14 @@ if uploaded_file is not None:
                 len(object_counts)
             )
 
+
         with col3:
 
             st.metric(
                 "Average Confidence",
                 f"{np.mean(confidence_scores) * 100:.2f}%"
             )
+
 
         with col4:
 
@@ -423,70 +844,156 @@ if uploaded_file is not None:
             )
 
 
-        # -------------------------------------------------
+        # =================================================
         # DETECTED CLASSES
-        # -------------------------------------------------
+        # =================================================
 
-        st.markdown("### 🔎 Detected Classes")
+        st.markdown(
+            """
+            <div class="section-card">
+
+                <div class="section-title">
+                    🔎 Detected Classes
+                </div>
+
+            """,
+            unsafe_allow_html=True
+        )
+
 
         for label, count in object_counts.items():
 
-            st.write(
-                f"**{label.capitalize()}** — {count}"
+            st.markdown(
+                f"""
+                <div class="detected-class">
+                    🔎 &nbsp;
+                    {label.capitalize()}
+                    — {count}
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
 
-        # -------------------------------------------------
-        # CONFIDENCE DETAILS
-        # -------------------------------------------------
-
-        st.markdown("### 📈 Confidence Details")
-
-        confidence_col1, confidence_col2, confidence_col3 = (
-            st.columns(3)
+        st.markdown(
+            "</div>",
+            unsafe_allow_html=True
         )
 
-        with confidence_col1:
 
-            st.write(
-                "Lowest Confidence"
+        # =================================================
+        # CONFIDENCE DETAILS
+        # =================================================
+
+        st.markdown(
+            """
+            <div class="section-card">
+
+                <div class="section-title">
+                    📈 Confidence Details
+                </div>
+
+            """,
+            unsafe_allow_html=True
+        )
+
+
+        lowest_confidence = min(
+            confidence_scores
+        ) * 100
+
+        average_confidence = np.mean(
+            confidence_scores
+        ) * 100
+
+        highest_confidence = max(
+            confidence_scores
+        ) * 100
+
+
+        c1, c2, c3 = st.columns(
+            3
+        )
+
+
+        with c1:
+
+            st.markdown(
+                f"""
+                <div class="confidence-card rose">
+
+                    <div class="confidence-label">
+                        Lowest Confidence
+                    </div>
+
+                    <div class="confidence-value rose-value">
+                        {lowest_confidence:.2f}%
+                    </div>
+
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
-            st.write(
-                f"### {min(confidence_scores) * 100:.2f}%"
-            )
 
-        with confidence_col2:
+        with c2:
 
-            st.write(
-                "Average Confidence"
-            )
+            st.markdown(
+                f"""
+                <div class="confidence-card">
 
-            st.write(
-                f"### {np.mean(confidence_scores) * 100:.2f}%"
-            )
+                    <div class="confidence-label">
+                        Average Confidence
+                    </div>
 
-        with confidence_col3:
+                    <div class="confidence-value">
+                        {average_confidence:.2f}%
+                    </div>
 
-            st.write(
-                "Highest Confidence"
-            )
-
-            st.write(
-                f"### {max(confidence_scores) * 100:.2f}%"
+                </div>
+                """,
+                unsafe_allow_html=True
             )
 
 
-        # -------------------------------------------------
+        with c3:
+
+            st.markdown(
+                f"""
+                <div class="confidence-card">
+
+                    <div class="confidence-label">
+                        Highest Confidence
+                    </div>
+
+                    <div class="confidence-value">
+                        {highest_confidence:.2f}%
+                    </div>
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+        st.markdown(
+            "</div>",
+            unsafe_allow_html=True
+        )
+
+
+        # =================================================
         # DOWNLOAD RESULT
-        # -------------------------------------------------
+        # =================================================
 
-        st.divider()
+        st.markdown("")
+
 
         result_bytes = cv2.imencode(
             ".jpg",
             output_image
         )[1].tobytes()
+
 
         st.download_button(
             label="⬇️ Download Detection Result",
@@ -496,9 +1003,27 @@ if uploaded_file is not None:
         )
 
 
+    # =====================================================
+    # NO DETECTIONS
+    # =====================================================
+
     else:
 
         st.warning(
-            "No objects were detected above the "
-            "selected confidence threshold."
+            "No objects were detected above the selected "
+            "confidence threshold."
         )
+
+
+# =========================================================
+# FOOTER
+# =========================================================
+
+st.markdown(
+    """
+    <div class="footer">
+        MobileNet-SSD • Computer Vision • Object Detection
+    </div>
+    """,
+    unsafe_allow_html=True
+)
